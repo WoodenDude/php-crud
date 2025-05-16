@@ -1,25 +1,21 @@
 <?php
-$host = "localhost";
-$username = "root";
-$password = "";
-$database = "library_db"; // Changed to library_db
+// Prevent direct access
+defined('ACCESS') or die('No direct script access allowed');
 
+// Error reporting (only for development)
+error_reporting(0); // Disable in production
+ini_set('display_errors', 0);
+
+$host = "localhost";
+$username = "root"; 
+$password = "";
+$database = "library_db";
+
+// Use prepared statements
 $conn = new mysqli($host, $username, $password, $database);
 
 if ($conn->connect_error) {
-    die("<div style='padding: 20px; background: #ffecec; border: 1px solid red; margin: 20px;'>
-        <h2>Database Connection Failed</h2>
-        <p>Create database 'library_db' in phpMyAdmin and import this SQL:</p>
-        <textarea style='width: 100%; height: 100px;'>
-        CREATE TABLE books (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(100) NOT NULL,
-            author VARCHAR(100) NOT NULL,
-            isbn VARCHAR(20) UNIQUE,
-            status ENUM('Available', 'Checked Out') DEFAULT 'Available',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        </textarea>
-        </div>");
+    error_log("Database connection failed: " . $conn->connect_error);
+    die("System maintenance in progress. Please try later.");
 }
 ?>
