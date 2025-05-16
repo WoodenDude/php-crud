@@ -1,17 +1,25 @@
-<?php 
-include 'config.php';
+<?php
+require 'config.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $stmt = $conn->prepare("UPDATE books SET title=?, author=?, isbn=?, status=? WHERE id=?");
-    $stmt->bind_param("ssssi", $_POST['title'], $_POST['author'], $_POST['isbn'], $_POST['status'], $_POST['id']);
+// Validate book ID
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if (!$id) die("Invalid book ID");
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING);
+    $author = filter_input(INPUT_POST, 'author', FILTER_SANITIZE_STRING);
     
-    if ($stmt->execute()) {
-        header("Location: index.php");
-    }
+    $stmt = $conn->prepare("UPDATE books SET title=?, author=? WHERE id=?");
+    $stmt->bind_param("ssi", $title, $author, $id);
+    $stmt->execute();
+    header("Location: index.php");
+    exit;
 }
 
-$id = $_GET['id'];
-$result = $conn->query("SELECT * FROM books WHERE id=$id");
-$row = $result->fetch_assoc();
+// Fetch existing data
+$stmt = $conn->prepare("SELECT title, author FROM books WHERE id=?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$book = $stmt->get_result()->fetch_assoc();
 ?>
-<!-- Similar styling to create.php but with existing values populated -->
+<!-- Form remains the same -->
